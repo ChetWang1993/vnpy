@@ -2,8 +2,8 @@
     {
         "name": "dual thrust crypto",
         "className": "DualThrustCStrategy",
-        "vtSymbol": "btc_usdt.OKEX",
-        "okSymbol": "btc_usd",
+        "vtSymbol": "eos_usd.OKEX",
+        "okSymbol": "eos_usd",
 		"kLineCycle":1,
 		"initDays": 0,
 		"enable":true
