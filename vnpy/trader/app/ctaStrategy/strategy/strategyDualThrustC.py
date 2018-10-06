@@ -36,7 +36,7 @@ class DualThrustCStrategy(CtaTemplate):
     range = 0.0
     longEntry = 0.0
     shortEntry = 0.0
-    exitTime = time(hour=23, minute=59)
+    exitTime = datetime.time(hour=23, minute=59)
 
     longEntered = False
     shortEntered = False
@@ -268,7 +268,7 @@ class DualThrustCStrategy(CtaTemplate):
             #api = self.ctaEngine.mainEngine.getGateway('OKEX').api
             #balance = api.request('GET', path, params, True, False)
     	    #print(balance)
-            balance = getFuturePositionInfo(self.__dict__['okSymbol'], 'this_week');
+            balance = getFuturePosition(self.__dict__['okSymbol'], 'this_week');
             #return float(filter(lambda x: x['asset'] == 'EOS', balance[1]['balances'])[0]['free'])
             return {'long': balance['holding']['buy_amount'], 'short': balance['holding']['sell_amount'] }
         except KeyError:
