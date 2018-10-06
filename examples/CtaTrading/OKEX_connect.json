@@ -1,6 +1,7 @@
 {
-	"apiKey": "4b36c965-a577-497a-a216-665cedd68655",
-	"secretKey": "D0AB97E9CFE3F57131162952CE368191",
-	"symbols": ["BTCUSDT", "ETCUSDT", "EOSUSDT", "BCCUSDT"]
+	"apiKey": "91712df5-d408-4895-8e95-2d6067f7d784",
+	"secretKey": "9E7CE84460340551991542429A382BB7",
+    	"trace": false,
+    	"symbols": ["eth_btc", "btc_usdt", "eth_usdt"]
 }
 
