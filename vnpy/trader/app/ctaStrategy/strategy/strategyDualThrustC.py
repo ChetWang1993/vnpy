@@ -103,7 +103,7 @@ class DualThrustCStrategy(CtaTemplate):
 	    print("strategy init")
             apiKey = 'R0546VwwTnhBNXdxi9a9Z7dkRHnCP8DyY0ah8KTDClxZqEOBaFkKgYLTLF8Acow8'
             secretKey = 'J72JCQIxm3RRFDIwFXNWnSlmgKadEqaz184j2sjSeBGLBu9dDZ7kB7ImPR6Jdgqx'
-            client = Client(apiKey, secretKey)
+            #client = Client(apiKey, secretKey)
 	    today = datetime.datetime.now()
 	    yesterday = datetime.datetime.now() - timedelta(1)
             #klinesY = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, yesterday.strftime('%d %b, %Y'), yesterday.strftime('%d %b, %Y'))
