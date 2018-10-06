@@ -18,7 +18,7 @@ from vnpy.trader.vtEngine import MainEngine, LogEngine
 from vnpy.trader.gateway import okexGateway
 from vnpy.trader.app import ctaStrategy
 from vnpy.trader.app.ctaStrategy.ctaBase import EVENT_CTA_LOG
-#from vnpy.api.okex.func import *
+from vnpy.api.okex.func import *
 
 
 #----------------------------------------------------------------------
