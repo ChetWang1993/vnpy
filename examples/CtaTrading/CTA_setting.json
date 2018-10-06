@@ -1,19 +1,11 @@
 [
     {
-        "name": "double ema",
-        "className": "EmaDemoStrategy",
-        "vtSymbol": "IF1706"
-    },
-
-    {
-        "name": "atr rsi",
-        "className": "AtrRsiStrategy",
-        "vtSymbol": "IC1706"
-    },
-
-    {
-        "name": "king keltner",
-        "className": "KkStrategy",
-        "vtSymbol": "IH1706"
+        "name": "dual thrust crypto",
+        "className": "DualThrustStrategy",
+        "vtSymbol": "btc_usdt.OKEX",
+        "okSymbol": "btc",
+		"kLineCycle":1,
+		"initDays": 10,
+		"enable":true
     }
 ]
