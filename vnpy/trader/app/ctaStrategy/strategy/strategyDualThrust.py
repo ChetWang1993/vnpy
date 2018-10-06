@@ -18,11 +18,14 @@ class DualThrustStrategy(CtaTemplate):
     author = u'用Python的交易员'
 
     # 策略参数
-    fixedSize = 100
+    fixedSize = 11
     k1 = 0.4
     k2 = 0.6
 
     initDays = 10
+    balancePos = 11.0
+    isStop = True
+    #posPrice = -1
 
     # 策略变量
     barList = []                # K线对象的列表
@@ -30,11 +33,12 @@ class DualThrustStrategy(CtaTemplate):
     dayOpen = 0
     dayHigh = 0
     dayLow = 0
+    dayClose = 0.0
     
     range = 0
     longEntry = 0
     shortEntry = 0
-    exitTime = time(hour=14, minute=55)
+    exitTime = time(hour=23, minute=59)
 
     longEntered = False
     shortEntered = False
@@ -101,7 +105,6 @@ class DualThrustStrategy(CtaTemplate):
         """收到Bar推送（必须由用户继承实现）"""
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
         self.cancelAll()
-
         # 计算指标数值
         self.barList.append(bar)
         
@@ -129,49 +132,50 @@ class DualThrustStrategy(CtaTemplate):
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
 
-        # 尚未到收盘
+        #print("h: %f, l: %f, o: %f, c: %f, r: %f, dh: %f, dl: %f, do: %f, dc: %f, long entry: %f, short entry: %f, pos: %ff"%(self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose, self.longEntry, self.shortEntry, self.pos))
         if not self.range:
             return
+        
+    #self.buy(self.dayOpen, self.fixedSize, stop=True)    
+        # 尚未到收盘
+        #if bar.datetime.time() < self.exitTime:
 
-        if bar.datetime.time() < self.exitTime:
-            if self.pos == 0:
-                if bar.close > self.dayOpen:
-                    if not self.longEntered:
-                        self.buy(self.longEntry, self.fixedSize, stop=True)
-                else:
-                    if not self.shortEntered:
-                        self.short(self.shortEntry, self.fixedSize, stop=True)
-    
-            # 持有多头仓位
-            elif self.pos > 0:
-                self.longEntered = True
-
-                # 多头止损单
-                self.sell(self.shortEntry, self.fixedSize, stop=True)
-                
-                # 空头开仓单
-                if not self.shortEntered:
-                    self.short(self.shortEntry, self.fixedSize, stop=True)
-                
-            # 持有空头仓位
-            elif self.pos < 0:
-                self.shortEntered = True
-
-                # 空头止损单
-                self.cover(self.longEntry, self.fixedSize, stop=True)
-                
-                # 多头开仓单
+        if self.pos == 0:
+            if bar.close > self.dayOpen:
                 if not self.longEntered:
-                    self.buy(self.longEntry, self.fixedSize, stop=True)
+                    #print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+            else:
+                if not self.shortEntered:
+                    #print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                    self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
+
+        # 持有多头仓位
+        elif self.pos > 0:
+            self.longEntered = True
+
+            # 多头止损单
+            #print("cover long, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+            self.sell(self.shortEntry, self.fixedSize, stop=self.isStop)
             
-        # 收盘平仓
-        else:
-            if self.pos > 0:
-                self.sell(bar.close * 0.99, abs(self.pos))
-            elif self.pos < 0:
-                self.cover(bar.close * 1.01, abs(self.pos))
- 
-        # 发出状态更新事件
+            # 空头开仓单
+            if not self.shortEntered:
+                #print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
+            
+        # 持有空头仓位
+        elif self.pos < 0:
+            self.shortEntered = True
+
+            # 空头止损单
+            #print("cover short, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+            self.cover(self.longEntry, self.fixedSize, stop=self.isStop)
+            
+            # 多头开仓单
+            if not self.longEntered:
+                #print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+
         self.putEvent()
 
     #----------------------------------------------------------------------
