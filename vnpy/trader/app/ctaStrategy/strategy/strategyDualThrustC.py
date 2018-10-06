@@ -8,7 +8,7 @@ from datetime import datetime, date, time, timedelta
 from vnpy.trader.vtObject import VtBarData
 from vnpy.trader.vtConstant import EMPTY_STRING
 from vnpy.trader.app.ctaStrategy.ctaTemplate import CtaTemplate, BarGenerator
-from binance.client import Client
+#from binance.client import Client
 from vnpy.api.okex.func import *
 
 ########################################################################
@@ -104,12 +104,12 @@ class DualThrustCStrategy(CtaTemplate):
             apiKey = 'R0546VwwTnhBNXdxi9a9Z7dkRHnCP8DyY0ah8KTDClxZqEOBaFkKgYLTLF8Acow8'
             secretKey = 'J72JCQIxm3RRFDIwFXNWnSlmgKadEqaz184j2sjSeBGLBu9dDZ7kB7ImPR6Jdgqx'
             client = Client(apiKey, secretKey)
-	    today = datetime.now()
-	    yesterday = datetime.now() - timedelta(1)
+	    today = datetime.datetime.now()
+	    yesterday = datetime.datetime.now() - timedelta(1)
             #klinesY = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, yesterday.strftime('%d %b, %Y'), yesterday.strftime('%d %b, %Y'))
             #klinesT = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, today.strftime('%d %b, %Y'), today.strftime('%d %b, %Y'))
-            klinesY = getKline(self.__dict__['vtSymbol'], time.mktime(yesterday.timetuple()) * 1000)
-            klinesT = getKline(self.__dict__['vtSymbol'], time.mktime(today.timetuple()) * 1000)
+            klinesY = getFutureKline(self.__dict__['vtSymbol'], time.mktime(yesterday.timetuple()) * 1000)
+            klinesT = getFutureKline(self.__dict__['vtSymbol'], time.mktime(today.timetuple()) * 1000)
             print("yesterday kline")
 	    print(klinesY)
 	    print("today kline")

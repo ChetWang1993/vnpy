@@ -33,9 +33,9 @@ def getSpotUserInfo():
     res = json.loads(httpPost("www.okex.com","/api/v1/userinfo.do", post_data))
     return res
 
-def getKline(symbol, startTime):
+def getFutureKline(symbol, startTime):
     params = 'symbol=%s&type=1day&since=%d'%(symbol, startTime)
-    return httpGet("www.okex.com","/api/v1/kline.do", params)
+    return httpGet("www.okex.com","/api/v1/future_kline.do", params)
 
 def getSpotCurrency(sym):
     res = getSpotUserInfo()
