@@ -34,7 +34,7 @@ def getSpotUserInfo():
     return res
 
 def getFutureKline(symbol, startTime):
-    params = 'symbol=%s&type=1day&since=%d'%(symbol, startTime)
+    params = 'symbol=%s&type=1day&since=%d&contract_type=this_week'%(symbol, startTime)
     return httpGet("www.okex.com","/api/v1/future_kline.do", params)
 
 def getSpotCurrency(sym):

@@ -1,4 +1,7 @@
 .DS_Store
+dist/
+vnpy.egg-info/
+examples/CtaTrading/temp/
 # C++源代码
 ipch/
 Release/

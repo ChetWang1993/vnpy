@@ -5,6 +5,7 @@ DualThrust交易策略
 """
 
 from datetime import datetime, date, time, timedelta
+import datetime
 from vnpy.trader.vtObject import VtBarData
 from vnpy.trader.vtConstant import EMPTY_STRING
 from vnpy.trader.app.ctaStrategy.ctaTemplate import CtaTemplate, BarGenerator
@@ -108,8 +109,8 @@ class DualThrustCStrategy(CtaTemplate):
 	    yesterday = datetime.datetime.now() - timedelta(1)
             #klinesY = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, yesterday.strftime('%d %b, %Y'), yesterday.strftime('%d %b, %Y'))
             #klinesT = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, today.strftime('%d %b, %Y'), today.strftime('%d %b, %Y'))
-            klinesY = getFutureKline(self.__dict__['vtSymbol'], time.mktime(yesterday.timetuple()) * 1000)
-            klinesT = getFutureKline(self.__dict__['vtSymbol'], time.mktime(today.timetuple()) * 1000)
+            klinesY = getFutureKline(self.__dict__['vtSymbol'], time.mktime(yesterday.timetuple()))
+            klinesT = getFutureKline(self.__dict__['vtSymbol'], time.mktime(today.timetuple()))
             print("yesterday kline")
 	    print(klinesY)
 	    print("today kline")
