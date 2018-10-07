@@ -717,8 +717,8 @@ class FutureApi(OkexFutureApi):
         """初始化回调函数"""
         for symbol in self.symbols:
             # channel和symbol映射
-            self.channelSymbolMap["ok_sub_futureusd_%s_ticker" % symbol] = symbol
-            self.channelSymbolMap["ok_sub_future_%s_depth_5_this_week" % symbol] = symbol
+            self.channelSymbolMap["ok_sub_futureusd_%s_ticker_this_week" % symbol] = symbol
+            self.channelSymbolMap["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = symbol
             
             # channel和callback映射
             self.cbDict["ok_sub_future_%s_ticker" % symbol] = self.onTicker
@@ -747,6 +747,7 @@ class FutureApi(OkexFutureApi):
     #----------------------------------------------------------------------
     def onTicker(self, data):
         """"""
+        print(data)
         channel = data['channel']
         symbol = self.channelSymbolMap[channel]
         
