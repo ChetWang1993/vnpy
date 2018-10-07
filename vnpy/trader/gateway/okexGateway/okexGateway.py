@@ -669,6 +669,7 @@ class FutureApi(OkexFutureApi):
     #----------------------------------------------------------------------
     def onMessage(self, data):
         """信息推送""" 
+        print(data)
         channel = data.get('channel', '')
         if not channel:
             return
