@@ -20,7 +20,7 @@ SPOT_CURRENCY = ["usdt",
                  "ltc",
                  "eth",
                  "etc",
-                 "bch"]
+                 "bch", "eos"]
 
 SPOT_SYMBOL = ["ltc_btc",
                "eth_btc",
@@ -42,7 +42,7 @@ SPOT_SYMBOL = ["ltc_btc",
                "qtum_usdt",
                "hsr_usdt",
                "neo_usdt",
-               "gas_usdt"]
+               "gas_usdt", "eos_usdt"]
 
 KLINE_PERIOD = ["1min",
                 "3min",

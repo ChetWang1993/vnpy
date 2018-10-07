@@ -523,6 +523,7 @@ class DataEngine(object):
     
     #----------------------------------------------------------------------
     def getContract(self, vtSymbol):
+	print(self.contractDict)
         """查询合约对象"""
         try:
             return self.contractDict[vtSymbol]
