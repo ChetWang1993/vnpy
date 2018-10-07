@@ -721,7 +721,7 @@ class FutureApi(OkexFutureApi):
             self.channelSymbolMap["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = symbol
             
             # channel和callback映射
-            self.cbDict["ok_sub_future_%s_ticker" % symbol] = self.onTicker
+            self.cbDict["ok_sub_future_%s_ticker_this_week" % symbol] = self.onTicker
             self.cbDict["ok_sub_future_%s_depth_5_this_week" % symbol] = self.onDepth
             #self.cbDict["ok_sub_spot_%s_order" % symbol] = self.onSubSpotOrder
             #self.cbDict["ok_sub_spot_%s_balance" % symbol] = self.onSubSpotBalance
