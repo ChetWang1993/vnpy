@@ -361,3 +361,88 @@ class OkexSpotApi(OkexApi):
         channel = 'ok_sub_spot_%s_balance' %symbol
         self.sendRequest(channel)
  
+########################################################################
+class OkexFutureApi(OkexApi):    
+    """现货交易接口"""
+
+    #----------------------------------------------------------------------
+    def __init__(self):
+        """Constructor"""
+        super(OkexFutureApi, self).__init__()
+
+    #----------------------------------------------------------------------
+    def subscribeFutureTicker(self, symbol):
+        """订阅现货的Tick"""
+        channel = 'ok_sub_futureusd_%s_ticker_this_week' %symbol
+        self.sendRequest(channel)
+
+    #----------------------------------------------------------------------
+    def subscribeFutureDepth(self, symbol, depth=0):
+        """订阅现货的深度"""
+        channel = 'ok_sub_futureusd_%s_depth_this_week' %symbol
+        if depth:
+            channel = channel + '_' + str(depth)
+        self.sendRequest(channel)
+
+    #----------------------------------------------------------------------
+    #def subscribeSpotDeals(self, symbol):
+    #    channel = 'ok_sub_spot_%s_deals' %symbol
+    #    self.sendRequest(channel)
+
+    #----------------------------------------------------------------------
+    def subscribeFutureKlines(self, symbol, period):
+        channel = 'ok_sub_futureusd_%s_kline_%s_this_week' %(symbol, period)
+        self.sendRequest(channel)
+
+    #----------------------------------------------------------------------
+    #def spotOrder(self, symbol, type_, price, amount):
+        """现货委托"""
+    #     params = {}
+    #     params['symbol'] = str(symbol)
+    #     params['type'] = str(type_)
+    #     params['price'] = str(price)
+    #     params['amount'] = str(amount)
+        
+    #     channel = 'ok_spot_order'
+        
+    #     return self.sendRequest(channel, params)
+
+    # #----------------------------------------------------------------------
+    # def spotCancelOrder(self, symbol, orderid):
+    #     """现货撤单"""
+    #     params = {}
+    #     params['symbol'] = str(symbol)
+    #     params['order_id'] = str(orderid)
+        
+    #     channel = 'ok_spot_cancel_order'
+
+    #     self.sendRequest(channel, params)
+    
+    #----------------------------------------------------------------------
+    def futureUserInfo(self):
+        """查询现货账户"""
+        channel = 'ok_sub_futureusd_userinfo'
+        self.sendRequest(channel, {})
+
+    #----------------------------------------------------------------------
+    # def spotOrderInfo(self, symbol, orderid):
+    #     """查询现货委托信息"""
+    #     params = {}
+    #     params['symbol'] = str(symbol)
+    #     params['order_id'] = str(orderid)
+        
+    #     channel = 'ok_spot_orderinfo'
+        
+    #     self.sendRequest(channel, params)
+    
+    # #----------------------------------------------------------------------
+    # def subSpotOrder(self, symbol):
+    #     """订阅委托推送"""
+    #     channel = 'ok_sub_spot_%s_order' %symbol
+    #     self.sendRequest(channel)
+    
+    # #----------------------------------------------------------------------
+    # def subSpotBalance(self, symbol):
+    #     """订阅资金推送"""
+    #     channel = 'ok_sub_spot_%s_balance' %symbol
+    #     self.sendRequest(channel)
