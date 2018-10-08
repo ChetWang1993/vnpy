@@ -374,12 +374,14 @@ class OkexFutureApi(OkexApi):
     #----------------------------------------------------------------------
     def subscribeFutureTicker(self, symbol):
         """订阅现货的Tick"""
+        symbol = symbol.split('_')[0]
         channel = 'ok_sub_futureusd_%s_ticker_this_week' %symbol
         self.sendRequest(channel)
 
     #----------------------------------------------------------------------
     def subscribeFutureDepth(self, symbol, depth=0):
         """订阅现货的深度"""
+        symbol = symbol.split('_')[0]
         channel = 'ok_sub_futureusd_%s_depth_this_week' %symbol
         if depth:
             channel = channel + '_' + str(depth)
@@ -392,6 +394,7 @@ class OkexFutureApi(OkexApi):
 
     #----------------------------------------------------------------------
     def subscribeFutureKlines(self, symbol, period):
+        symbol = symbol.split('_')[0]
         channel = 'ok_sub_futureusd_%s_kline_%s_this_week' %(symbol, period)
         self.sendRequest(channel)
 
