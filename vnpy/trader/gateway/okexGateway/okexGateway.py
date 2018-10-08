@@ -718,6 +718,7 @@ class FutureApi(OkexFutureApi):
         """初始化回调函数"""
         for symbol in self.symbols:
             # channel和symbol映射
+            symbol = symbol.split('_')[0]
             self.channelSymbolMap["ok_sub_futureusd_%s_ticker_this_week" % symbol] = symbol
             self.channelSymbolMap["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = symbol
             
