@@ -277,7 +277,7 @@ class SpotApi(OkexSpotApi):
     #----------------------------------------------------------------------
     def onTicker(self, data):
         """"""
-        channel = data['channel']
+	channel = data['channel']
         symbol = self.channelSymbolMap[channel]
         
         if symbol not in self.tickDict:
@@ -516,7 +516,7 @@ class SpotApi(OkexSpotApi):
             
             trade.tradeTime = datetime.now().strftime('%H:%M:%S')
             self.gateway.onTrade(trade)
-        
+
         # 撤单
         if localNo in self.cancelDict:
             req = self.cancelDict[localNo]
@@ -669,7 +669,7 @@ class FutureApi(OkexFutureApi):
     #----------------------------------------------------------------------
     def onMessage(self, data):
         """信息推送""" 
-        print(data)
+        #print(data)
 	channel = data.get('channel', '')
         if not channel:
             return
@@ -723,8 +723,8 @@ class FutureApi(OkexFutureApi):
             self.channelSymbolMap["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = symbol
             
             # channel和callback映射
-            self.cbDict["ok_sub_future_%s_ticker_this_week" % symbol] = self.onTicker
-            self.cbDict["ok_sub_future_%s_depth_5_this_week" % symbol] = self.onDepth
+            self.cbDict["ok_sub_futureusd_%s_ticker_this_week" % symbol] = self.onTicker
+            self.cbDict["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = self.onDepth
             #self.cbDict["ok_sub_spot_%s_order" % symbol] = self.onSubSpotOrder
             #self.cbDict["ok_sub_spot_%s_balance" % symbol] = self.onSubSpotBalance
 
@@ -769,11 +769,14 @@ class FutureApi(OkexFutureApi):
         tick.lowPrice = float(d['low'])
         tick.lastPrice = float(d['last'])
         tick.volume = float(d['vol'].replace(',', ''))
-        tick.date, tick.time = self.generateDateTime(d['timestamp'])
-        
-        if tick.bidPrice1:
-            newtick = copy(tick)
-            self.gateway.onTick(newtick)
+        dt = datetime.now()
+        tick.time = dt.strftime("%H:%M:%S.%f")
+        tick.date = dt.strftime("%Y%m%d")
+	#tick.date, tick.time = self.generateDateTime(d['timestamp'])
+
+	#if tick.bidPrice1:
+        newtick = copy(tick)
+        self.gateway.onTick(newtick)
     
     #----------------------------------------------------------------------
     def onDepth(self, data):
