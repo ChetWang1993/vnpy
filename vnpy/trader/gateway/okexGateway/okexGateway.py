@@ -717,11 +717,11 @@ class FutureApi(OkexFutureApi):
     def initCallback(self):
         """初始化回调函数"""
         for symbol in self.symbols:
+            symbol = symbol.split('_')[0]
             # channel和symbol映射
             self.channelSymbolMap["ok_sub_futureusd_%s_ticker_this_week" % symbol] = symbol
             self.channelSymbolMap["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = symbol
 
-            symbol = symbol.split('_')[0]
             # channel和callback映射
             self.cbDict["ok_sub_futureusd_%s_ticker_this_week" % symbol] = self.onTicker
             self.cbDict["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = self.onDepth
@@ -754,7 +754,7 @@ class FutureApi(OkexFutureApi):
         
         if symbol not in self.tickDict:
             tick = VtTickData()
-            tick.symbol = symbol
+            tick.symbol = symbol + '_usd'
             tick.exchange = EXCHANGE_OKEX
             tick.vtSymbol = '.'.join([tick.symbol, tick.exchange])
             tick.gatewayName = self.gatewayName
