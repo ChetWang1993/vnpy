@@ -13,6 +13,7 @@ import websocket
 
 # 常量定义
 OKEX_SPOT_HOST = 'wss://real.okex.com:10441/websocket'
+OKEX_FUTURE_HOST = 'wss://real.okex.com:10440/websocket'
 
 
 SPOT_CURRENCY = ["usdt",

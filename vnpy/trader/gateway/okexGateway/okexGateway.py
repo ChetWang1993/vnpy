@@ -670,7 +670,7 @@ class FutureApi(OkexFutureApi):
     def onMessage(self, data):
         """信息推送""" 
         print(data)
-        channel = data.get('channel', '')
+	channel = data.get('channel', '')
         if not channel:
             return
 
@@ -1019,7 +1019,7 @@ class FutureApi(OkexFutureApi):
         """初始化接口"""
         self.symbols = symbols
         self.initCallback()
-        self.connect(OKEX_SPOT_HOST, apiKey, secretKey, trace)
+        self.connect(OKEX_FUTURE_HOST, apiKey, secretKey, trace)
         self.writeLog(u'接口初始化成功')
 
     # #----------------------------------------------------------------------
