@@ -263,8 +263,6 @@ class CtaEngine(AppEngine):
         self.processStopOrder(tick)
         
         # 推送tick到对应的策略实例进行处理
-        print(tick.vtSymbol)
-	print(self.tickStrategyDict)
 	if tick.vtSymbol in self.tickStrategyDict:
             # tick时间可能出现异常数据，使用try...except实现捕捉和过滤
             try:

@@ -203,11 +203,11 @@ class DualThrustCStrategy(CtaTemplate):
             if bar.close > self.dayOpen:
                 if not self.longEntered and bar.close >= self.longEntry:
                     print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
-                    #self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+                    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
             else:
                 if not self.shortEntered and bar.close <= self.shortEntry:
                     print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
-                    #self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
+                    self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
 
         # 持有多头仓位
         elif self.longPos > 0.0:
@@ -216,12 +216,12 @@ class DualThrustCStrategy(CtaTemplate):
             # 多头止损单
             if bar.close <= shortEntry:
                 print("cover long, price: %f, pos: %f"%(self.shortEntry, self.currentPos - self.balancePos))
-                #self.sell(self.shortEntry, self.currentPos - self.balancePos, stop=self.isStop)
+                self.sell(self.shortEntry, self.currentPos - self.balancePos, stop=self.isStop)
             
             # 空头开仓单
                 if not self.shortEntered:
                     print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
-                    #self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
+                    self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
             
         # 持有空头仓位
         elif self.shortPos > 0.0:
@@ -230,12 +230,12 @@ class DualThrustCStrategy(CtaTemplate):
             # 空头止损单
             if bar.close >= longEntry:
                 print("cover short, price: %f, pos: %f"%(self.longEntry, self.balancePos - self.currentPos))
-                #self.cover(self.longEntry, self.balancePos - self.currentPos, stop=self.isStop)
+                self.cover(self.longEntry, self.balancePos - self.currentPos, stop=self.isStop)
                 
                 # 多头开仓单
                 if not self.longEntered:
                     print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
-                    #self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+                    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
             
         # 收盘平仓
         #else:

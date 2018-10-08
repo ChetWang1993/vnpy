@@ -10,6 +10,7 @@ from threading import Thread
 from time import sleep
 
 import websocket    
+from func import *
 
 # 常量定义
 OKEX_SPOT_HOST = 'wss://real.okex.com:10441/websocket'
@@ -399,28 +400,29 @@ class OkexFutureApi(OkexApi):
         self.sendRequest(channel)
 
     #----------------------------------------------------------------------
-    #def spotOrder(self, symbol, type_, price, amount):
+    def futureOrder(self, symbol, type_, price, amount, match_price = '1'):
         """现货委托"""
-    #     params = {}
-    #     params['symbol'] = str(symbol)
-    #     params['type'] = str(type_)
-    #     params['price'] = str(price)
-    #     params['amount'] = str(amount)
-        
-    #     channel = 'ok_spot_order'
-        
-    #     return self.sendRequest(channel, params)
+        params = {}
+        params['symbol'] = str(symbol)
+        params['type'] = str(type_)
+        params['price'] = str(price)
+        params['amount'] = str(amount)
+        params['match_price'] = match_price
+        params['contract_type'] = 'this_week'
+        futureTrade(params)
+        #return self.sendRequest(channel, params)
 
-    # #----------------------------------------------------------------------
-    # def spotCancelOrder(self, symbol, orderid):
-    #     """现货撤单"""
-    #     params = {}
-    #     params['symbol'] = str(symbol)
-    #     params['order_id'] = str(orderid)
-        
-    #     channel = 'ok_spot_cancel_order'
+    #----------------------------------------------------------------------
+    def futureCancelOrder(self, symbol, orderid):
+        """现货撤单"""
+        params = {}
+        params['symbol'] = str(symbol)
+        params['order_id'] = str(orderid)
+        params['contract_type'] = 'this_week'
+        futureCancel(params)
+        #channel = 'ok_spot_cancel_order'
 
-    #     self.sendRequest(channel, params)
+        #self.sendRequest(channel, params)
     
     #----------------------------------------------------------------------
     def futureUserInfo(self):

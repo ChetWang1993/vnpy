@@ -95,10 +95,10 @@ class OkexGateway(VtGateway):
         """订阅行情"""
         pass
         
-    # #----------------------------------------------------------------------
-    # def sendOrder(self, orderReq):
-    #     """发单"""
-    #     return self.spotApi.sendOrder(orderReq)
+    #----------------------------------------------------------------------
+    def sendOrder(self, orderReq):
+        """发单"""
+        return self.futureApi.sendOrder(orderReq)
 
     # #----------------------------------------------------------------------
     # def cancelOrder(self, cancelOrderReq):
@@ -718,10 +718,10 @@ class FutureApi(OkexFutureApi):
         """初始化回调函数"""
         for symbol in self.symbols:
             # channel和symbol映射
-            symbol = symbol.split('_')[0]
             self.channelSymbolMap["ok_sub_futureusd_%s_ticker_this_week" % symbol] = symbol
             self.channelSymbolMap["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = symbol
-            
+
+            symbol = symbol.split('_')[0]
             # channel和callback映射
             self.cbDict["ok_sub_futureusd_%s_ticker_this_week" % symbol] = self.onTicker
             self.cbDict["ok_sub_futureusd_%s_depth_5_this_week" % symbol] = self.onDepth
@@ -730,8 +730,8 @@ class FutureApi(OkexFutureApi):
 
         #self.cbDict['ok_future_userinfo'] = self.onFutureUserInfo
         #self.cbDict['ok_spot_orderinfo'] = self.onSpotOrderInfo
-        #self.cbDict['ok_spot_order'] = self.onSpotOrder
-        #self.cbDict['ok_spot_cancel_order'] = self.onSpotCancelOrder
+        #self.cbDict['ok_spot_order'] = self.onFutureOrder
+        #self.cbDict['ok_spot_cancel_order'] = self.onFutureCancelOrder
         self.cbDict['login'] = self.onLogin
     
     #----------------------------------------------------------------------
@@ -749,7 +749,6 @@ class FutureApi(OkexFutureApi):
     #----------------------------------------------------------------------
     def onTicker(self, data):
         """"""
-        print(data)
         channel = data['channel']
         symbol = self.channelSymbolMap[channel]
         
@@ -837,8 +836,8 @@ class FutureApi(OkexFutureApi):
             newtick = copy(tick)
             self.gateway.onTick(newtick)
     
-    #----------------------------------------------------------------------        
-    # def onSpotOrder(self, data):
+    # #----------------------------------------------------------------------        
+    # def onFutureOrder(self, data):
     #     """"""
     #     # 如果委托失败，则通知委托被拒单的信息
     #     if self.checkDataError(data):
@@ -852,7 +851,7 @@ class FutureApi(OkexFutureApi):
     #         self.gateway.onOrder(order)
     
     # #----------------------------------------------------------------------
-    # def onSpotCancelOrder(self, data):
+    # def onFutureCancelOrder(self, data):
     #     """"""
     #     self.checkDataError(data)
         
@@ -1025,37 +1024,38 @@ class FutureApi(OkexFutureApi):
         self.connect(OKEX_FUTURE_HOST, apiKey, secretKey, trace)
         self.writeLog(u'接口初始化成功')
 
-    # #----------------------------------------------------------------------
-    # def sendOrder(self, req):
-    #     """发单"""
-    #     type_ = priceTypeMapReverse[(req.direction, req.priceType)]
-    #     result = self.spotOrder(req.symbol, type_, str(req.price), str(req.volume))
-        
-    #     # 若请求失败，则返回空字符串委托号
-    #     if not result:
-    #         return ''
-        
-    #     # 本地委托号加1，并将对应字符串保存到队列中，返回基于本地委托号的vtOrderID
-    #     self.localNo += 1
-    #     self.localNoQueue.put(str(self.localNo))
-    #     vtOrderID = '.'.join([self.gatewayName, str(self.localNo)])
-        
-    #     # 缓存委托信息
-    #     order = VtOrderData()
-    #     order.gatewayName = self.gatewayName
-        
-    #     order.symbol = req.symbol
-    #     order.exchange = EXCHANGE_OKEX
-    #     order.vtSymbol = '.'.join([order.symbol, order.exchange])
-    #     order.orderID= str(self.localNo)
-    #     order.vtOrderID = vtOrderID
-    #     order.direction = req.direction
-    #     order.price = req.price
-    #     order.totalVolume = req.volume
-        
-    #     self.localOrderDict[str(self.localNo)] = order
+    #----------------------------------------------------------------------
+    def sendOrder(self, req):
+        """发单"""
+        type_ = priceTypeMapReverse[(req.direction, req.priceType)]
+        #result = self.spotOrder(req.symbol, type_, str(req.price), str(req.volume))
+        result = self.futureOrder(req.symbol, type_, str(req.price), str(req.volume))
 
-    #     return vtOrderID
+        # 若请求失败，则返回空字符串委托号
+        if not result:
+            return ''
+        
+        # 本地委托号加1，并将对应字符串保存到队列中，返回基于本地委托号的vtOrderID
+        self.localNo += 1
+        self.localNoQueue.put(str(self.localNo))
+        vtOrderID = '.'.join([self.gatewayName, str(self.localNo)])
+        
+        # 缓存委托信息
+        order = VtOrderData()
+        order.gatewayName = self.gatewayName
+        
+        order.symbol = req.symbol
+        order.exchange = EXCHANGE_OKEX
+        order.vtSymbol = '.'.join([order.symbol, order.exchange])
+        order.orderID= str(self.localNo)
+        order.vtOrderID = vtOrderID
+        order.direction = req.direction
+        order.price = req.price
+        order.totalVolume = req.volume
+        
+        self.localOrderDict[str(self.localNo)] = order
+
+        return vtOrderID
     
     # #----------------------------------------------------------------------
     # def cancelOrder(self, req):
