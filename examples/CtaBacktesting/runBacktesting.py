@@ -8,7 +8,7 @@ from __future__ import division
 
 from vnpy.trader.app.ctaStrategy.ctaBacktesting import BacktestingEngine, MINUTE_DB_NAME, formatNumber, copy, TradingResult
 from vnpy.trader.vtConstant import *
-from vnpy.trader.app.ctaStrategy.strategy.strategyDualThrust import DualThrustStrategy
+from vnpy.trader.app.ctaStrategy.strategy.strategyDualThrustC import DualThrustStrategyC
 import sys
 import Constant
 import pandas as pd
