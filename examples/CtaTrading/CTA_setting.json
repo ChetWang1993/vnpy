@@ -4,10 +4,10 @@
         "className": "DualThrustCStrategy",
         "vtSymbol": "eos_usd.OKEX",
         "okSymbol": "eos_usd",
-		"k1": 0.6,
-		"k2": 0.4,
-		"fixedSize": 100,
-		"enable": true
+        "k1": 0.6,
+        "k2": 0.4,
+        "fixedSize": 100,
+        "enable": true
     },
 
     {
@@ -15,9 +15,10 @@
         "className": "DualThrustCStrategy",
         "vtSymbol": "btc_usd.OKEX",
         "okSymbol": "btc_usd",
-		"k1": 0.8,
-		"k2": 0.6,
-		"enable": true
+        "k1": 0.8,
+        "k2": 0.6,
+        "fixedSize": 10,
+        "enable": true
     },
 
     {
@@ -25,8 +26,9 @@
         "className": "DualThrustCStrategy",
         "vtSymbol": "bch_usd.OKEX",
         "okSymbol": "bch_usd",
-		"k1": 0.6,
-		"k2": 0.4,
-		"enable": true
+        "fixedSize": 100,
+        "k1": 0.6,
+        "k2": 0.4,
+        "enable": true
     }
 ]
