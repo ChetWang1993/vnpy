@@ -2,6 +2,6 @@
 	"apiKey": "91712df5-d408-4895-8e95-2d6067f7d784",
 	"secretKey": "9E7CE84460340551991542429A382BB7",
     	"trace": false,
-        "symbols": ["eos_usd", "btc_usd"]
+        "symbols": ["eos_usd"]
 }
 

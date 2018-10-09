@@ -409,7 +409,7 @@ class OkexFutureApi(OkexApi):
         params['amount'] = str(amount)
         params['match_price'] = match_price
         params['contract_type'] = 'this_week'
-        futureTrade(params)
+	futureTrade(params)
         #return self.sendRequest(channel, params)
 
     #----------------------------------------------------------------------

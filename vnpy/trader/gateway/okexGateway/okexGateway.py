@@ -31,6 +31,12 @@ priceTypeMap['sell'] = (DIRECTION_SHORT, PRICETYPE_LIMITPRICE)
 priceTypeMap['sell_market'] = (DIRECTION_SHORT, PRICETYPE_MARKETPRICE)
 priceTypeMapReverse = {v: k for k, v in priceTypeMap.items()} 
 
+futureMap = {}
+futureMap['1'] = (DIRECTION_LONG, OFFSET_OPEN)
+futureMap['3'] = (DIRECTION_SHORT, OFFSET_CLOSE)
+futureMap['2'] = (DIRECTION_SHORT, OFFSET_OPEN)
+futureMap['4'] = (DIRECTION_LONG, OFFSET_CLOSE)
+futureReverse = {v: k for k, v in futureMap.items()}
 # 委托状态印射
 statusMap = {}
 statusMap[-1] = STATUS_CANCELLED
@@ -1027,7 +1033,7 @@ class FutureApi(OkexFutureApi):
     #----------------------------------------------------------------------
     def sendOrder(self, req):
         """发单"""
-        type_ = priceTypeMapReverse[(req.direction, req.priceType)]
+	type_ = futureReverse[(req.direction, req.offset)]
         #result = self.spotOrder(req.symbol, type_, str(req.price), str(req.volume))
         result = self.futureOrder(req.symbol, type_, str(req.price), str(req.volume))
 

@@ -11,7 +11,7 @@ from vnpy.trader.vtConstant import EMPTY_STRING
 from vnpy.trader.app.ctaStrategy.ctaTemplate import CtaTemplate, BarGenerator
 #from binance.client import Client
 from vnpy.api.okex.func import *
-
+from vnpy.trader.app.ctaStrategy.ctaBase import *
 ########################################################################
 class DualThrustCStrategy(CtaTemplate):
     """DualThrust交易策略"""
@@ -19,11 +19,11 @@ class DualThrustCStrategy(CtaTemplate):
     author = u'用Python的交易员'
 
     # 策略参数
-    fixedSize = 10
+    fixedSize = 100
     k1 = 0.6
     k2 = 0.4
 
-    initDays = 10
+    initDays = 0
     longPos = 0.0
     shortPos = 0.0
     isStop = False
@@ -163,13 +163,14 @@ class DualThrustCStrategy(CtaTemplate):
         """收到Bar推送（必须由用户继承实现）"""
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
         self.cancelAll()
-        pos = self.getPos()
-        print(pos)
-        self.longPos = pos['long']
-        self.shortPos = pos['short']
+	self.updatePos()
+	#if self.longPos == 0:
+	#    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+        #if self.longPos > 0:
+	#    self.sell(self.longEntry, self.longPos, stop=self.isStop)
+	print("long pos: %f short pos: %f"%(self.longPos, self.shortPos))
         # 计算指标数值
         self.barList.append(bar)
-        
         if len(self.barList) <= 2:
             return
         else:
@@ -202,11 +203,11 @@ class DualThrustCStrategy(CtaTemplate):
         if self.longPos == 0.0 and self.shortPos == 0.0:
             if bar.close > self.dayOpen:
                 if not self.longEntered and bar.close >= self.longEntry:
-                    print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                    print("buy, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
                     self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
             else:
                 if not self.shortEntered and bar.close <= self.shortEntry:
-                    print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                    print("short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
                     self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
 
         # 持有多头仓位
@@ -214,13 +215,13 @@ class DualThrustCStrategy(CtaTemplate):
             self.longEntered = True
 
             # 多头止损单
-            if bar.close <= shortEntry:
-                print("cover long, price: %f, pos: %f"%(self.shortEntry, self.currentPos - self.balancePos))
-                self.sell(self.shortEntry, self.currentPos - self.balancePos, stop=self.isStop)
+            if bar.close <= self.shortEntry:
+                print("sell, price: %f, pos: %f"%(self.shortEntry, self.longPos))
+                self.sell(self.shortEntry, self.longPos, stop=self.isStop)
             
             # 空头开仓单
                 if not self.shortEntered:
-                    print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                    print("short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
                     self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
             
         # 持有空头仓位
@@ -228,13 +229,13 @@ class DualThrustCStrategy(CtaTemplate):
             self.shortEntered = True
 
             # 空头止损单
-            if bar.close >= longEntry:
-                print("cover short, price: %f, pos: %f"%(self.longEntry, self.balancePos - self.currentPos))
-                self.cover(self.longEntry, self.balancePos - self.currentPos, stop=self.isStop)
+            if bar.close >= self.longEntry:
+                print("cover, price: %f, pos: %f"%(self.longEntry, self.shortPos))
+                self.cover(self.longEntry, self.shortPos, stop=self.isStop)
                 
                 # 多头开仓单
                 if not self.longEntered:
-                    print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                    print("long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
                     self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
             
         # 收盘平仓
@@ -262,17 +263,24 @@ class DualThrustCStrategy(CtaTemplate):
         """停止单推送"""
         pass
 
-    def getPos(self):
+    def updatePos(self):
         try:
     	    #path = '/api/v1/account'
     	    #params = {}
             #api = self.ctaEngine.mainEngine.getGateway('OKEX').api
             #balance = api.request('GET', path, params, True, False)
     	    #print(balance)
-            balance = getFuturePosition(self.__dict__['okSymbol'], 'this_week');
-            print(balance);
+	    sym = self.__dict__['vtSymbol'].split('.')[0]
+            balance = getFuturePosition(sym, 'this_week');
 	    #return float(filter(lambda x: x['asset'] == 'EOS', balance[1]['balances'])[0]['free'])
-            return {'long': balance['holding'][0]['buy_amount'], 'short': balance['holding'][0]['sell_amount'] }
-        except KeyError:
-            print("get pos key error")
-            return {'long': 0.0, 'short': 0.0 }
+            self.longPos =  balance['holding'][0]['buy_amount']
+	    self.shortPos = balance['holding'][0]['sell_amount']
+        except IndexError:
+            print("get pos error")
+            self.longPos = 0.0
+            self.shortPos = 0.0
+
+    def coverAll(self, price, stop=False):
+        """买平"""
+	self.updatePos()
+        return self.sendOrder(CTAORDER_COVER, price, self.longPos, stop)
