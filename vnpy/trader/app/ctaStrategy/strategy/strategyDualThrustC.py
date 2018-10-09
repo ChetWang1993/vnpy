@@ -47,8 +47,11 @@ class DualThrustCStrategy(CtaTemplate):
                  'className',
                  'author',
                  'vtSymbol',
+                 'okSymbol',
                  'k1',
-                 'k2']    
+                 'k2',
+                 'initDays',
+                 'fixedSize']
 
     # 变量列表，保存了变量的名称
     varList = ['inited',
@@ -270,8 +273,7 @@ class DualThrustCStrategy(CtaTemplate):
             #api = self.ctaEngine.mainEngine.getGateway('OKEX').api
             #balance = api.request('GET', path, params, True, False)
     	    #print(balance)
-	    sym = self.__dict__['vtSymbol'].split('.')[0]
-            balance = getFuturePosition(sym, 'this_week');
+            balance = getFuturePosition(self.__dict__['okSymbol'], 'this_week');
 	    #return float(filter(lambda x: x['asset'] == 'EOS', balance[1]['balances'])[0]['free'])
             self.longPos =  balance['holding'][0]['buy_amount']
 	    self.shortPos = balance['holding'][0]['sell_amount']
