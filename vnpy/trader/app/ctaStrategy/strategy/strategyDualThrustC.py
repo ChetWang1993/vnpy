@@ -37,7 +37,6 @@ class DualThrustCStrategy(CtaTemplate):
     range = 0.0
     longEntry = 0.0
     shortEntry = 0.0
-    exitTime = datetime.time(hour=23, minute=59)
 
     longEntered = False
     shortEntered = False
@@ -59,8 +58,7 @@ class DualThrustCStrategy(CtaTemplate):
                'pos',
                'range',
                'longEntry',
-               'shortEntry',
-               'exitTime'] 
+               'shortEntry']
     
     # 同步列表，保存了需要保存到数据库的变量名称
     syncList = ['pos']    
@@ -104,29 +102,25 @@ class DualThrustCStrategy(CtaTemplate):
 
     def initPrice(self):
         try:
-	    print("strategy init")
             apiKey = 'R0546VwwTnhBNXdxi9a9Z7dkRHnCP8DyY0ah8KTDClxZqEOBaFkKgYLTLF8Acow8'
             secretKey = 'J72JCQIxm3RRFDIwFXNWnSlmgKadEqaz184j2sjSeBGLBu9dDZ7kB7ImPR6Jdgqx'
-            #client = Client(apiKey, secretKey)
-	    today = datetime.datetime.now() - timedelta(1)
-	    yesterday = datetime.datetime.now() - timedelta(2)
-            #klinesY = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, yesterday.strftime('%d %b, %Y'), yesterday.strftime('%d %b, %Y'))
-            #klinesT = client.get_historical_klines(self.__dict__['vtSymbol'].split('.')[0], Client.KLINE_INTERVAL_1DAY, today.strftime('%d %b, %Y'), today.strftime('%d %b, %Y'))
+            today = datetime.datetime.now() - timedelta(1)
+            yesterday = datetime.datetime.now() - timedelta(2)
             klinesY = getFutureKline(self.__dict__['vtSymbol'], time.mktime(yesterday.timetuple()) * 1000)
             klinesT = getFutureKline(self.__dict__['vtSymbol'], time.mktime(today.timetuple()) * 1000)
-            print("yesterday kline")
-	    print(klinesY)
-	    print("today kline")
-	    print(klinesT)
-	    self.dayHigh = float(klinesT[0][2])
+            print("%s yesterday kline"%(self.__dict__['okSymbol']))
+            print(klinesY)
+            print("%s today kline"%（self.__dict__['okSymbol'])）
+            print(klinesT)
+            self.dayHigh = float(klinesT[0][2])
             self.dayLow = float(klinesT[0][3])
-	    self.dayOpen = float(klinesT[0][1])
-	    self.dayClose = float(klinesT[0][4])
+            self.dayOpen = float(klinesT[0][1])
+            self.dayClose = float(klinesT[0][4])
             self.range = float(klinesY[0][2]) - float(klinesY[0][3])
             self.longEntry = float(klinesT[0][1]) + self.k1 * self.range
             self.shortEntry = float(klinesT[0][1]) - self.k2 * self.range
         except KeyError:
-            print("get kline error")
+            print("%s get kline error"%(self.__dict__['okSymbol']))
             return 0.0        
 
     #----------------------------------------------------------------------
@@ -171,7 +165,7 @@ class DualThrustCStrategy(CtaTemplate):
 	#    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
         #if self.longPos > 0:
 	#    self.sell(self.longEntry, self.longPos, stop=self.isStop)
-	print("long pos: %f short pos: %f"%(self.longPos, self.shortPos))
+	print("%s long pos: %f short pos: %f"%(self.__dict__['okSymbol'], self.longPos, self.shortPos))
         # 计算指标数值
         self.barList.append(bar)
         if len(self.barList) <= 2:
@@ -197,20 +191,20 @@ class DualThrustCStrategy(CtaTemplate):
         else:
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
-        print("h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f, dc: %f"\
-	%(self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
-	print("long entry: %f, short entry: %f, lp: %f, sp: %f" % (self.longEntry, self.shortEntry, self.longPos, self.shortPos))
+        print("%s h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f, dc: %f"\
+	%(self.__dict__['okSymbol'], self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
+	print("%s long entry: %f, short entry: %f, lp: %f, sp: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.longPos, self.shortPos))
         if not self.range:
             return
 
         if self.longPos == 0.0 and self.shortPos == 0.0:
             if bar.close > self.dayOpen:
                 if not self.longEntered and bar.close >= self.longEntry:
-                    print("buy, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                    print("%s buy, price: %f, pos: %f"%(self.__dict__['okSymbol'], self.longEntry, self.fixedSize))
                     self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
             else:
                 if not self.shortEntered and bar.close <= self.shortEntry:
-                    print("short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                    print("%s short, price: %f, pos: %f"%(self.__dict__['okSymbol'], self.shortEntry, self.fixedSize))
                     self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
 
         # 持有多头仓位
@@ -219,12 +213,12 @@ class DualThrustCStrategy(CtaTemplate):
 
             # 多头止损单
             if bar.close <= self.shortEntry:
-                print("sell, price: %f, pos: %f"%(self.shortEntry, self.longPos))
+                print("%s sell, price: %f, pos: %f"%(self.__dict__['okSymbol'], self.shortEntry, self.longPos))
                 self.sell(self.shortEntry, self.longPos, stop=self.isStop)
             
             # 空头开仓单
                 if not self.shortEntered:
-                    print("short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                    print("%s short, price: %f, pos: %f"%(self.__dict__['okSymbol'], self.shortEntry, self.fixedSize))
                     self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
             
         # 持有空头仓位
@@ -233,20 +227,13 @@ class DualThrustCStrategy(CtaTemplate):
 
             # 空头止损单
             if bar.close >= self.longEntry:
-                print("cover, price: %f, pos: %f"%(self.longEntry, self.shortPos))
+                print("%s cover, price: %f, pos: %f"%(self.__dict__['okSymbol'], self.longEntry, self.shortPos))
                 self.cover(self.longEntry, self.shortPos, stop=self.isStop)
                 
                 # 多头开仓单
                 if not self.longEntered:
-                    print("long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                    print("%s long, price: %f, pos: %f"%(self.__dict__['okSymbol'], self.longEntry, self.fixedSize))
                     self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
-            
-        # 收盘平仓
-        #else:
-        #    if self.pos > 0:
-        #        self.sell(bar.close * 0.99, abs(self.pos))
-        #    elif self.pos < 0:
-        #        self.cover(bar.close * 1.01, abs(self.pos))
  
         # 发出状态更新事件
         self.putEvent()
@@ -268,17 +255,11 @@ class DualThrustCStrategy(CtaTemplate):
 
     def updatePos(self):
         try:
-    	    #path = '/api/v1/account'
-    	    #params = {}
-            #api = self.ctaEngine.mainEngine.getGateway('OKEX').api
-            #balance = api.request('GET', path, params, True, False)
-    	    #print(balance)
             balance = getFuturePosition(self.__dict__['okSymbol'], 'this_week');
-	    #return float(filter(lambda x: x['asset'] == 'EOS', balance[1]['balances'])[0]['free'])
             self.longPos =  balance['holding'][0]['buy_amount']
 	    self.shortPos = balance['holding'][0]['sell_amount']
         except IndexError:
-            print("get pos error")
+            print("%s get pos error"%(self.__dict__['okSymbol']))
             self.longPos = 0.0
             self.shortPos = 0.0
 
