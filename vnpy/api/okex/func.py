@@ -55,9 +55,9 @@ def getFuturePrice(sym, contractType):
     return httpGet("www.okex.com", "/api/v1/future_depth.do", 'symbol='+ sym + '_usd&contract_type=' + contractType + '&size=5')
 
 def getFuturePosition(sym, contractType):
-    post_data={'symbol': sym, 'contract_type': contractType, 'api_key': apiKey,'type': '1'}
+    post_data={'symbol': sym, 'contract_type': contractType, 'api_key': apiKey}
     post_data['sign'] = buildMySign(post_data, secretKey)
-    res = json.loads(httpPost("www.okex.com","/api/v1/future_position_4fix", post_data))
+    res = json.loads(httpPost("www.okex.com","/api/v1/future_position", post_data))
     return res
 
 def getFutureOrderInfo(sym, contractType, orderId):

@@ -160,12 +160,12 @@ class DualThrustCStrategy(CtaTemplate):
         """收到Bar推送（必须由用户继承实现）"""
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
         self.cancelAll()
-	self.updatePos()
-	#if self.longPos == 0:
-	#    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
-        #if self.longPos > 0:
-	#    self.sell(self.longEntry, self.longPos, stop=self.isStop)
-	print("%s long pos: %f short pos: %f"%(self.__dict__['okSymbol'], self.longPos, self.shortPos))
+        self.updatePos()
+        #if self.longPos == 0:
+        #    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+            #if self.longPos > 0:
+        #    self.sell(self.longEntry, self.longPos, stop=self.isStop)
+        print("%s long pos: %f short pos: %f"%(self.__dict__['okSymbol'], self.longPos, self.shortPos))
         # 计算指标数值
         self.barList.append(bar)
         if len(self.barList) <= 2:
@@ -191,9 +191,11 @@ class DualThrustCStrategy(CtaTemplate):
         else:
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
+
         print("%s h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f, dc: %f"\
-	%(self.__dict__['okSymbol'], self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
-	print("%s long entry: %f, short entry: %f, lp: %f, sp: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.longPos, self.shortPos))
+            %(self.__dict__['okSymbol'], self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
+        print("%s long entry: %f, short entry: %f, lp: %f, sp: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.longPos, self.shortPos))
+
         if not self.range:
             return
 
@@ -257,7 +259,7 @@ class DualThrustCStrategy(CtaTemplate):
         try:
             balance = getFuturePosition(self.__dict__['okSymbol'], 'this_week');
             self.longPos =  balance['holding'][0]['buy_amount']
-	    self.shortPos = balance['holding'][0]['sell_amount']
+            self.shortPos = balance['holding'][0]['sell_amount']
         except IndexError:
             print("%s get pos error"%(self.__dict__['okSymbol']))
             self.longPos = 0.0
