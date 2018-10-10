@@ -110,7 +110,7 @@ class DualThrustCStrategy(CtaTemplate):
             klinesT = getFutureKline(self.__dict__['vtSymbol'], time.mktime(today.timetuple()) * 1000)
             print("%s yesterday kline"%(self.__dict__['okSymbol']))
             print(klinesY)
-            print("%s today kline"%（self.__dict__['okSymbol'])）
+            print("%s today kline"%(self.__dict__['okSymbol']))
             print(klinesT)
             self.dayHigh = float(klinesT[0][2])
             self.dayLow = float(klinesT[0][3])
