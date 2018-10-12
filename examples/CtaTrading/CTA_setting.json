@@ -27,8 +27,8 @@
         "vtSymbol": "bch_usd.OKEX",
         "okSymbol": "bch_usd",
         "fixedSize": 150,
-        "k1": 0.6,
-        "k2": 0.4,
+        "k1": 0.35,
+        "k2": 0.3,
         "enable": true
     },
 
