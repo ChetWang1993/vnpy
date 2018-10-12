@@ -15,7 +15,7 @@ from vnpy.trader.app.ctaStrategy.ctaBase import *
 ########################################################################
 class DualThrustCStrategy(CtaTemplate):
     """DualThrust交易策略"""
-    className = 'DualThrustStrategyC'
+    className = 'DualThrustCStrategy'
     author = u'用Python的交易员'
 
     # 策略参数
@@ -193,7 +193,7 @@ class DualThrustCStrategy(CtaTemplate):
             self.dayLow = min(self.dayLow, bar.low)
 
         print("%s h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f, dc: %f"\
-            %(self.__dict__['okSymbol'], self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
+            %(self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
         print("%s long entry: %f, short entry: %f, lp: %f, sp: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.longPos, self.shortPos))
 
         if not self.range:

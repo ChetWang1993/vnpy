@@ -18,13 +18,12 @@ class DualThrustStrategy(CtaTemplate):
     author = u'用Python的交易员'
 
     # 策略参数
-    fixedSize = 11
+    fixedSize = 0
     k1 = 0.4
     k2 = 0.6
 
-    initDays = 10
-    balancePos = 11.0
-    isStop = True
+    initDays = 1
+    isStop = False
     #posPrice = -1
 
     # 策略变量
@@ -49,7 +48,8 @@ class DualThrustStrategy(CtaTemplate):
                  'author',
                  'vtSymbol',
                  'k1',
-                 'k2']    
+                 'k2',
+                 'fixedSize']
 
     # 变量列表，保存了变量的名称
     varList = ['inited',
@@ -132,21 +132,20 @@ class DualThrustStrategy(CtaTemplate):
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
 
-        #print("h: %f, l: %f, o: %f, c: %f, r: %f, dh: %f, dl: %f, do: %f, dc: %f, long entry: %f, short entry: %f, pos: %ff"%(self.dayHigh, self.dayLow, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose, self.longEntry, self.shortEntry, self.pos))
         if not self.range:
             return
-        
-    #self.buy(self.dayOpen, self.fixedSize, stop=True)    
-        # 尚未到收盘
-        #if bar.datetime.time() < self.exitTime:
+        #print(bar.datetime)
+        #print("h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f"\
+        #    %(bar.high, bar.low, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen))
+        #print("long entry: %f, short entry: %f, pos: %f" % (self.longEntry, self.shortEntry, self.pos))
 
         if self.pos == 0:
             if bar.close > self.dayOpen:
-                if not self.longEntered:
+                if not self.longEntered and bar.close >= self.longEntry:
                     #print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
                     self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
             else:
-                if not self.shortEntered:
+                if not self.shortEntered and bar.close <= self.shortEntry:
                     #print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
                     self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
 
@@ -154,27 +153,29 @@ class DualThrustStrategy(CtaTemplate):
         elif self.pos > 0:
             self.longEntered = True
 
-            # 多头止损单
-            #print("cover long, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
-            self.sell(self.shortEntry, self.fixedSize, stop=self.isStop)
-            
-            # 空头开仓单
-            if not self.shortEntered:
-                #print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
-                self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
+            if bar.close <= self.shortEntry:
+                # 多头止损单
+                #print("cover long, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                self.sell(self.shortEntry, self.fixedSize, stop=self.isStop)
+
+                # 空头开仓单
+                if not self.shortEntered:
+                    #print("open short, price: %f, pos: %f"%(self.shortEntry, self.fixedSize))
+                    self.short(self.shortEntry, self.fixedSize, stop=self.isStop)
             
         # 持有空头仓位
         elif self.pos < 0:
             self.shortEntered = True
 
-            # 空头止损单
-            #print("cover short, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
-            self.cover(self.longEntry, self.fixedSize, stop=self.isStop)
-            
-            # 多头开仓单
-            if not self.longEntered:
-                #print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
-                self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
+            if bar.close >= self.longEntry:
+                # 空头止损单
+                #print("cover short, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                self.cover(self.longEntry, self.fixedSize, stop=self.isStop)
+
+                # 多头开仓单
+                if not self.longEntered:
+                    #print("open long, price: %f, pos: %f"%(self.longEntry, self.fixedSize))
+                    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
 
         self.putEvent()
 

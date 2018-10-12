@@ -8,6 +8,7 @@ from __future__ import division
 
 from vnpy.trader.app.ctaStrategy.ctaBacktesting import BacktestingEngine, MINUTE_DB_NAME, formatNumber, copy, TradingResult
 from vnpy.trader.vtConstant import *
+from vnpy.trader.app.ctaStrategy.strategy.strategyDualThrustH import DualThrustHStrategy
 from vnpy.trader.app.ctaStrategy.strategy.strategyDualThrust import DualThrustStrategy
 import sys
 import Constant
@@ -22,8 +23,8 @@ symbol = sys.argv[1]
 #resFile = 'res/EOS.csv'
 #pnlFile = 'res/EOSpnl.csv'
 startDate = '20180717'
-capital = 10000
 ratio = 0.5
+fixedSize = 100
 
 def displayResult(engine, capital):
     d = engine.calculateBacktestingResult()
@@ -171,8 +172,7 @@ def getResultList(engine, param):
         resultList.append(result)            
 
     df = pd.DataFrame([{'entryPrice': x.entryPrice, 'exitPrice': x.exitPrice, 'entryDt': x.entryDt, 'exitDt': x.exitDt, 'volume': x.volume, 'turnover': x.turnover, 'commission': x.commission, 'slippage': x.slippage, 'pnl': x.pnl } for x in resultList])
-    df['size'] = capital * ratio / 100.0 / Constant.currentPrice[param['symbol']]
-    df.to_csv(Constant.pnlFile[param['symbol']])
+    df.to_csv(Constant.pnlFile%param['symbol'])
 
 def backTesting(st, param):
     # 创建回测引擎
@@ -183,23 +183,16 @@ def backTesting(st, param):
     engine.setStartDate(param['sd'])
     # 设置产品相关参数
     engine.setSlippage(2 * Constant.tick[symbol])     # 股指1跳
-    engine.setRate(10/10000)   # 万10
-    #engine.setSize(1)         # 股指合约大小 
-    size = capital / Constant.currentPrice[param['symbol']]
-    print(size)
-    engine.setSize(11)         # 股指合约大小 
-    #print("size: " + str( capital / 10.0 / param['currentPrice']))
+    engine.setRate(Constant.rate)   # 万10
+    engine.setSize(1)         # 股指合约大小
     engine.setPriceTick(Constant.tick[symbol])    # 股指最小价格变动
     engine.setCapital(param['capital'])
     # 设置使用的历史数据库
-    engine.setDatabase(MINUTE_DB_NAME, Constant.dbname[param['symbol']])
+    engine.setDatabase(MINUTE_DB_NAME, Constant.dbname%param['symbol'])
     
     # 在引擎中创建策略对象
-    #d = {'rsiEntry': 30, 'atrLength': 20, 'artMaLength': 10, 'rsiLength': 40, 'fixedSize': 100, 'trailingPercent': 5, 'initDays': 20 }          # 初始化数据所用的天数}
-    #d = {'initDays': 10, 'slMultiplier': 8, 'fixedSize': 1, 'bollDev': 6, 'bollWindow': 20}
-    d = {'k1': Constant.dualThrustK1[param['symbol']], 'k2': Constant.dualThrustK2[param['symbol']], 'fixedSize': 10.0}
-    print(d)
-    engine.initStrategy(DualThrustStrategy, d)
+    d = {'k1': Constant.dualThrustK1[param['symbol']], 'k2': Constant.dualThrustK2[param['symbol']], 'fixedSize': param['fixedSize']}
+    engine.initStrategy(st, d)
     
     # 开始跑回测
     engine.runBacktesting()
@@ -207,7 +200,7 @@ def backTesting(st, param):
     res = pd.DataFrame([d[k].__dict__ for k in d.keys()])
     res['direction'] = pd.Series([ 1 if x == u'\u7a7a' else -1 for x in res['direction']])
     res['offset'] = pd.Series(['open' if x == u'\u5f00\u4ed3' else 'close' for x in res['offset']])
-    res.to_csv(Constant.resFile[param['symbol']])
+    res.to_csv(Constant.resFile%param['symbol'])
     displayResult(engine, param['capital'])
     getResultList(engine, param)
     #engine.showResultNoDraw()
@@ -216,7 +209,7 @@ def backTesting(st, param):
     return engine
 
 if __name__ == '__main__':
-    param = {'sd': startDate, 'symbol': symbol, 'capital': Constant.currentPrice[symbol] * 11}
+    param = {'sd': startDate, 'symbol': symbol, 'fixedSize': Constant.fixedSize[symbol], 'capital': Constant.currentPrice[symbol] * Constant.fixedSize[symbol] }
     engine = backTesting(DualThrustStrategy, param)
     # 在引擎中创建策略对象
     #d = {'rsiEntry': 30, 'atrLength': 20, 'artMaLength': 10, 'rsiLength': 40, 'fixedSize': 100, 'trailingPercent': 5, 'initDays': 20 }          # 初始化数据所用的天数}

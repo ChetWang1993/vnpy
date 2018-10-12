@@ -1,7 +1,9 @@
-tick = {'BTC': 0.01, 'ETC': 0.0001, 'EOS': 0.0001, 'BCC': 0.01}
-dbname = {'BTC': 'BTCUSDT', 'ETC': 'ETCUSDT', 'EOS': 'EOSUSDT', 'BCC': 'BCCUSDT'}
-resFile = {'BTC': 'res/BTC.csv', 'ETC': 'res/ETC.csv', 'EOS': 'res/EOS.csv', 'BCC': 'res/BCC.csv'}
-pnlFile = {'BTC': 'res/BTCpnl.csv', 'ETC': 'res/ETCpnl.csv', 'EOS': 'res/EOSpnl.csv', 'BCC': 'res/BCCpnl.csv'}
-currentPrice = {'BTC': 7000, 'ETC': 15, 'EOS': 7, 'BCC': 700}
-dualThrustK1 = {'BTC': 0.8, 'ETC': 0.6, 'EOS': 0.6, 'BCC': 0.6}
-dualThrustK2 = {'BTC': 0.6, 'ETC': 0.4, 'EOS': 0.4, 'BCC': 0.4}
+tick = {'BTC': 0.01, 'LTC': 0.001, 'ETH': 0.001, 'ETC': 0.001, 'BCH': 0.001, 'XRP': 0.001, 'EOS': 0.001, 'BTG': 0.01}
+rate = 0.0003
+dbname = '%sUSDT'
+resFile = 'res/%s.csv'
+pnlFile = 'res/%spnl.csv'
+currentPrice = {'BTC': 7000.0, 'LTC': 50.0, 'ETH': 200.0, 'ETC': 12.0, 'BCH': 450.0, 'XRP': 0.5, 'EOS': 6.0, 'BTG': 25.0}
+dualThrustK1 = {'BTC': 0.8, 'LTC': 0.8, 'ETH': 0.6, 'ETC': 0.5, 'BCH': 0.6, 'XRP': 0.55, 'EOS': 0.65, 'BTG': 0.3}
+dualThrustK2 = {'BTC': 0.6, 'LTC': 0.55, 'ETH': 0.4, 'ETC': 0.35, 'BCH': 0.4, 'XRP': 0.8, 'EOS': 0.35, 'BTG': 0.2}
+fixedSize = {'BTC': 10, 'LTC': 100, 'ETH': 100, 'ETC': 100, 'BCH': 100, 'XRP': 100, 'EOS': 100, 'BTG': 100}

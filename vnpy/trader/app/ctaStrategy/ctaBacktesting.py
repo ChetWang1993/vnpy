@@ -20,7 +20,6 @@ import matplotlib.pyplot as plt
 
 from vnpy.rpc import RpcClient, RpcServer, RemoteException
 
-
 # 如果安装了seaborn则设置为白色风格
 try:
     import seaborn as sns       
@@ -88,6 +87,10 @@ class BacktestingEngine(object):
         self.limitOrderDict = OrderedDict()         # 限价单字典
         self.workingLimitOrderDict = OrderedDict()  # 活动限价单字典，用于进行撮合用
         
+        self.marketOrderCount = 0                    # 限价单编号
+        self.marketOrderDict = OrderedDict()         # 限价单字典
+        self.workingMarketOrderDict = OrderedDict()  # 活动限价单字典，用于进行撮合用
+
         self.tradeCount = 0             # 成交编号
         self.tradeDict = OrderedDict()  # 成交字典
         
@@ -273,7 +276,6 @@ class BacktestingEngine(object):
         self.output(u'策略启动完成')
         
         self.output(u'开始回放数据')
-
         for d in self.dbCursor:
             data = dataClass()
             data.__dict__ = d
@@ -287,6 +289,7 @@ class BacktestingEngine(object):
         self.bar = bar
         self.dt = bar.datetime
         
+        self.crossMarketOrder()
         self.crossLimitOrder()      # 先撮合限价单
         self.crossStopOrder()       # 再撮合停止单
         self.strategy.onBar(bar)    # 推送K线到策略中
@@ -313,7 +316,73 @@ class BacktestingEngine(object):
         """
         self.strategy = strategyClass(self, setting)
         self.strategy.name = self.strategy.className
-    
+
+    def crossMarketOrder(self):
+        """基于最新数据撮合限价单"""
+        # 先确定会撮合成交的价格
+        if self.mode == self.BAR_MODE:
+            buyCrossPrice = self.bar.low        # 若买入方向限价单价格高于该价格，则会成交
+            sellCrossPrice = self.bar.high      # 若卖出方向限价单价格低于该价格，则会成交
+            buyBestCrossPrice = self.bar.open   # 在当前时间点前发出的买入委托可能的最优成交价
+            sellBestCrossPrice = self.bar.open  # 在当前时间点前发出的卖出委托可能的最优成交价
+        else:
+            buyCrossPrice = self.tick.askPrice1
+            sellCrossPrice = self.tick.bidPrice1
+            buyBestCrossPrice = self.tick.askPrice1
+            sellBestCrossPrice = self.tick.bidPrice1
+
+        # 遍历限价单字典中的所有限价单
+        for orderID, order in self.workingMarketOrderDict.items():
+            # 推送委托进入队列（未成交）的状态更新
+            if not order.status:
+                order.status = STATUS_NOTTRADED
+                self.strategy.onOrder(order)
+
+            # 判断是否会成交
+            buyCross = order.direction==DIRECTION_LONG # 国内的tick行情在涨停时askPrice1为0，此时买无法成交
+            sellCross = order.direction==DIRECTION_SHORT # 国内的tick行情在跌停时bidPrice1为0，此时卖无法成交
+
+            # 如果发生了成交
+            if buyCross or sellCross:
+                # 推送成交数据
+                self.tradeCount += 1            # 成交编号自增1
+                tradeID = str(self.tradeCount)
+                trade = VtTradeData()
+                trade.vtSymbol = order.vtSymbol
+                trade.tradeID = tradeID
+                trade.vtTradeID = tradeID
+                trade.orderID = order.orderID
+                trade.vtOrderID = order.orderID
+                trade.direction = order.direction
+                trade.offset = order.offset
+
+                # 以买入为例：
+                # 1. 假设当根K线的OHLC分别为：100, 125, 90, 110
+                # 2. 假设在上一根K线结束(也是当前K线开始)的时刻，策略发出的委托为限价105
+                # 3. 则在实际中的成交价会是100而不是105，因为委托发出时市场的最优价格是100
+                if buyCross:
+                    trade.price = buyBestCrossPrice
+                    self.strategy.pos += order.totalVolume
+                else:
+                    trade.price = sellBestCrossPrice
+                    self.strategy.pos -= order.totalVolume
+
+                trade.volume = order.totalVolume
+                trade.tradeTime = self.dt.strftime('%H:%M:%S')
+                trade.dt = self.dt
+                self.strategy.onTrade(trade)
+
+                self.tradeDict[tradeID] = trade
+
+                # 推送委托数据
+                order.tradedVolume = order.totalVolume
+                order.status = STATUS_ALLTRADED
+                self.strategy.onOrder(order)
+
+                # 从字典中删除该限价单
+                if orderID in self.workingMarketOrderDict:
+                    del self.workingMarketOrderDict[orderID]
+
     #----------------------------------------------------------------------
     def crossLimitOrder(self):
         """基于最新数据撮合限价单"""
@@ -510,6 +579,39 @@ class BacktestingEngine(object):
             self.strategy.onOrder(order)
             
             del self.workingLimitOrderDict[vtOrderID]
+
+    def sendMarketOrder(self, vtSymbol, orderType, price, volume, strategy):
+        """发单"""
+        self.marketOrderCount += 1
+        orderID = str(self.marketOrderCount)
+
+        order = VtOrderData()
+        order.vtSymbol = vtSymbol
+        order.price = self.roundToPriceTick(price)
+        order.totalVolume = volume
+        order.orderID = orderID
+        order.vtOrderID = orderID
+        order.orderTime = self.dt.strftime('%H:%M:%S')
+
+        # CTA委托类型映射
+        if orderType == CTAORDER_BUY:
+            order.direction = DIRECTION_LONG
+            order.offset = OFFSET_OPEN
+        elif orderType == CTAORDER_SELL:
+            order.direction = DIRECTION_SHORT
+            order.offset = OFFSET_CLOSE
+        elif orderType == CTAORDER_SHORT:
+            order.direction = DIRECTION_SHORT
+            order.offset = OFFSET_OPEN
+        elif orderType == CTAORDER_COVER:
+            order.direction = DIRECTION_LONG
+            order.offset = OFFSET_CLOSE
+
+        # 保存到限价单字典中
+        self.workingMarketOrderDict[orderID] = order
+        self.marketOrderDict[orderID] = order
+
+        return [orderID]
         
     #----------------------------------------------------------------------
     def sendStopOrder(self, vtSymbol, orderType, price, volume, strategy):
@@ -944,13 +1046,11 @@ class BacktestingEngine(object):
 
         for setting in settingList:
             l.append(pool.apply_async(optimize, (strategyClass, setting,
-                                                 targetName, self.mode, 
-                                                 self.startDate, self.initDays, self.endDate,
+                                                 self.mode, self.startDate, self.initDays, self.endDate,
                                                  self.slippage, self.rate, self.size, self.priceTick,
-                                                 self.dbName, self.symbol)))
+                                                 self.dbName, self.symbol, self.capital)))
         pool.close()
         pool.join()
-        
         # 显示结果
         resultList = [res.get() for res in l]
         resultList.sort(reverse=True, key=lambda result:result[1])
@@ -1212,7 +1312,7 @@ class DailyResult(object):
         """
         # 持仓部分
         self.openPosition = openPosition
-        self.positionPnl = self.openPosition * (self.closePrice - self.previousClose) * size
+        self.positionPnl = self.openPosition * (self.closePrice - self.previousClose)
         self.closePosition = self.openPosition
         
         # 交易部分
@@ -1224,11 +1324,11 @@ class DailyResult(object):
             else:
                 posChange = -trade.volume
                 
-            self.tradingPnl += posChange * (self.closePrice - trade.price) * size
+            self.tradingPnl += posChange * (self.closePrice - trade.price)
             self.closePosition += posChange
-            self.turnover += trade.price * trade.volume * size
-            self.commission += trade.price * trade.volume * size * rate
-            self.slippage += trade.volume * size * slippage
+            self.turnover += trade.price * trade.volume
+            self.commission += trade.price * trade.volume * rate
+            self.slippage += trade.volume * slippage
         
         # 汇总
         self.totalPnl = self.tradingPnl + self.positionPnl
@@ -1355,10 +1455,9 @@ def formatNumber(n):
     
 
 #----------------------------------------------------------------------
-def optimize(strategyClass, setting, targetName,
-             mode, startDate, initDays, endDate,
+def optimize(strategyClass, setting, mode, startDate, initDays, endDate,
              slippage, rate, size, priceTick,
-             dbName, symbol):
+             dbName, symbol, capital):
     """多进程优化时跑在每个进程中运行的函数"""
     engine = BacktestingEngine()
     engine.setBacktestingMode(mode)
@@ -1373,11 +1472,10 @@ def optimize(strategyClass, setting, targetName,
     engine.initStrategy(strategyClass, setting)
     engine.runBacktesting()
     
-    df = engine.calculateDailyResult()
-    df, d = engine.calculateDailyStatistics(df)
-    try:
-        targetValue = d[targetName]
-    except KeyError:
-        targetValue = 0            
-    return (str(setting), targetValue, d)    
+    #df = engine.calculateDailyResult()
+    #df, d = engine.calculateDailyStatistics(df)
+    d = engine.calculateBacktestingResult()
+    # 输出
+    targetValue = (d['capital'] + capital) / capital * 100
+    return (str(setting), targetValue, d)
     

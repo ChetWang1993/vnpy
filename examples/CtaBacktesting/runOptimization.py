@@ -6,13 +6,15 @@
 
 from __future__ import division
 from __future__ import print_function
-
+import sys
 
 from vnpy.trader.app.ctaStrategy.ctaBacktesting import BacktestingEngine, MINUTE_DB_NAME, OptimizationSetting
-
+from vnpy.trader.app.ctaStrategy.strategy.strategyDualThrust import DualThrustStrategy
+import Constant
 
 if __name__ == '__main__':
-    from vnpy.trader.app.ctaStrategy.strategy.strategyAtrRsi import AtrRsiStrategy
+    symbol = sys.argv[1]
+    #symbol = 'EOS'
     
     # 创建回测引擎
     engine = BacktestingEngine()
@@ -21,24 +23,24 @@ if __name__ == '__main__':
     engine.setBacktestingMode(engine.BAR_MODE)
 
     # 设置回测用的数据起始日期
-    engine.setStartDate('20120101')
+    engine.setStartDate('20180717')
     
     # 设置产品相关参数
-    engine.setSlippage(0.2)     # 股指1跳
-    engine.setRate(0.3/10000)   # 万0.3
-    engine.setSize(300)         # 股指合约大小 
-    engine.setPriceTick(0.2)    # 股指最小价格变动
+    engine.setSlippage(2 * Constant.tick[symbol])     # 股指1跳
+    engine.setRate(Constant.rate)   # 万3
+    engine.setSize(1)         # 股指合约大小
+    engine.setPriceTick(Constant.tick[symbol])    # 股指最小价格变动
+    engine.setCapital(Constant.currentPrice[symbol] * Constant.fixedSize[symbol])
     
     # 设置使用的历史数据库
-    engine.setDatabase(MINUTE_DB_NAME, 'IF0000')
+    engine.setDatabase(MINUTE_DB_NAME, Constant.dbname%symbol)
     
     # 跑优化
     setting = OptimizationSetting()                 # 新建一个优化任务设置对象
-    setting.setOptimizeTarget('capital')            # 设置优化排序的目标是策略净盈利
-    setting.addParameter('atrLength', 12, 20, 2)    # 增加第一个优化参数atrLength，起始12，结束20，步进2
-    setting.addParameter('atrMa', 20, 30, 5)        # 增加第二个优化参数atrMa，起始20，结束30，步进5
-    setting.addParameter('rsiLength', 5)            # 增加一个固定数值的参数
-    
+    setting.setOptimizeTarget('annualizedReturn')            # 设置优化排序的目标是策略净盈利
+    setting.addParameter('k1', 0.3, 0.9, 0.05)    # 增加第一个优化参数atrLength，起始0.3，结束0.9，步进0.05
+    setting.addParameter('k2', 0.3, 0.9, 0.05)        # 增加第二个优化参数atrMa，起始0.3, 结束0.9，步进0.05
+    setting.addParameter('fixedSize', Constant.fixedSize[symbol])
     # 性能测试环境：I7-3770，主频3.4G, 8核心，内存16G，Windows 7 专业版
     # 测试时还跑着一堆其他的程序，性能仅供参考
     import time    
@@ -48,6 +50,6 @@ if __name__ == '__main__':
     #engine.runOptimization(AtrRsiStrategy, setting)            
     
     # 多进程优化，耗时：89秒
-    engine.runParallelOptimization(AtrRsiStrategy, setting)
+    engine.runParallelOptimization(DualThrustStrategy, setting)
     
     print(u'耗时：%s' %(time.time()-start))
