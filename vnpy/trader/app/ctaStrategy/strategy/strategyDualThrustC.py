@@ -19,9 +19,9 @@ class DualThrustCStrategy(CtaTemplate):
     author = u'用Python的交易员'
 
     # 策略参数
-    fixedSize = 100
-    k1 = 0.6
-    k2 = 0.4
+    fixedSize = 0
+    k1 = 1.0
+    k2 = 1.0
 
     initDays = 0
     longPos = 0.0
@@ -161,11 +161,7 @@ class DualThrustCStrategy(CtaTemplate):
         # 撤销之前发出的尚未成交的委托（包括限价单和停止单）
         self.cancelAll()
         self.updatePos()
-        #if self.longPos == 0:
-        #    self.buy(self.longEntry, self.fixedSize, stop=self.isStop)
-            #if self.longPos > 0:
-        #    self.sell(self.longEntry, self.longPos, stop=self.isStop)
-        print("%s long pos: %f short pos: %f"%(self.__dict__['okSymbol'], self.longPos, self.shortPos))
+        #print("%s long pos: %f short pos: %f"%(self.__dict__['okSymbol'], self.longPos, self.shortPos))
         # 计算指标数值
         self.barList.append(bar)
         if len(self.barList) <= 2:
@@ -192,12 +188,17 @@ class DualThrustCStrategy(CtaTemplate):
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
 
-        print("%s h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f, dc: %f"\
-            %(self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, self.dayClose))
-        print("%s long entry: %f, short entry: %f, lp: %f, sp: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.longPos, self.shortPos))
+        print("%s %s h: %f, l: %f, o: %f, c: %f, range: %f, dh: %f, dl: %f, do: %f, dc: %f, long entry: %f, short entry: %f"\
+            %(str(datetime.datetime.now()), self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close, self.range, self.dayHigh, self.dayLow, self.dayOpen, \
+	    self.dayClose, self.longEntry, self.shortEntry))
 
         if not self.range:
             return
+
+	if self.longPos == 0:
+	    self.longEntered = False
+        if self.shortPos == 0:
+	    self.shortEntered = False
 
         if self.longPos == 0.0 and self.shortPos == 0.0:
             if bar.close > self.dayOpen:
@@ -258,12 +259,20 @@ class DualThrustCStrategy(CtaTemplate):
     def updatePos(self):
         try:
             balance = getFuturePosition(self.__dict__['okSymbol'], 'this_week');
-            self.longPos =  balance['holding'][0]['buy_amount']
-            self.shortPos = balance['holding'][0]['sell_amount']
+            print('%s bam: %f, bav: %f, sam: %f, sav: %f'%(self.__dict__['okSymbol'], balance['holding'][0]['buy_amount'], balance['holding'][0]['buy_available'], \
+		balance['holding'][0]['sell_amount'], balance['holding'][0]['sell_available']))
+            self.longPos =  balance['holding'][0]['buy_available']
+            self.shortPos = balance['holding'][0]['sell_available']
         except IndexError:
             print("%s get pos error"%(self.__dict__['okSymbol']))
             self.longPos = 0.0
             self.shortPos = 0.0
+        except ValueError:
+            print("request failed")
+            pass
+	except KeyError:
+	    print("request failed")
+            pass
 
     def coverAll(self, price, stop=False):
         """买平"""

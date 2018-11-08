@@ -1,0 +1,12 @@
+[
+    {
+        "name": "dual thrust eth",
+        "className": "DualThrustCStrategy",
+        "vtSymbol": "eth_usd.OKEX",
+        "okSymbol": "eth_usd",
+        "fixedSize": 180,
+        "k1": 0.6,
+        "k2": 0.4,
+        "enable": true
+    }
+]

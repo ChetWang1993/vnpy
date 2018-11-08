@@ -105,7 +105,7 @@ def futureTrade(params):
     params['api_key'] = apiKey
     params['sign'] = buildMySign(params, secretKey)
     res=json.loads(httpPost("www.okex.com","/api/v1/future_trade.do", params))
-    #print(res)
+    print(res)
 
     #order = getFutureOrderInfo(sym, contractType, res['order_id'])
     #print(remainingAmount)

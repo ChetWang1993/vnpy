@@ -96,8 +96,9 @@ class CtaEngine(AppEngine):
         req.currency = strategy.currency        
         
         # 设计为CTA引擎发出的委托只允许使用限价单
-        req.priceType = PRICETYPE_LIMITPRICE    
-        
+        #req.priceType = PRICETYPE_LIMITPRICE    
+	req.priceType = PRICETYPE_MARKETPRICE        
+
         # CTA委托类型映射
         if orderType == CTAORDER_BUY:
             req.direction = DIRECTION_LONG
@@ -118,7 +119,7 @@ class CtaEngine(AppEngine):
         # 委托转换
         reqList = self.mainEngine.convertOrderReq(req)
         vtOrderIDList = []
-        
+	print(reqList)        
         if not reqList:
             return vtOrderIDList
         

@@ -1,49 +1,5 @@
 [
     {
-        "name": "dual thrust btc",
-        "className": "DualThrustCStrategy",
-        "vtSymbol": "btc_usd.OKEX",
-        "okSymbol": "btc_usd",
-        "fixedSize": 15,
-        "k1": 0.8,
-        "k2": 0.6,
-        "enable": true
-    },
-
-    {
-        "name": "dual thrust etc",
-        "className": "DualThrustCStrategy",
-        "vtSymbol": "etc_usd.OKEX",
-        "okSymbol": "etc_usd",
-        "fixedSize": 150,
-        "k1": 0.5,
-        "k2": 0.35,
-        "enable": true
-    },
-
-    {
-        "name": "dual thrust bch",
-        "className": "DualThrustCStrategy",
-        "vtSymbol": "bch_usd.OKEX",
-        "okSymbol": "bch_usd",
-        "fixedSize": 150,
-        "k1": 0.35,
-        "k2": 0.3,
-        "enable": true
-    },
-
-    {
-        "name": "dual thrust xrp",
-        "className": "DualThrustCStrategy",
-        "vtSymbol": "xrp_usd.OKEX",
-        "okSymbol": "xrp_usd",
-        "fixedSize": 150,
-        "k1": 0.55,
-        "k2": 0.8,
-        "enable": true
-    },
-
-    {
         "name": "dual thrust eos",
         "className": "DualThrustCStrategy",
         "vtSymbol": "eos_usd.OKEX",

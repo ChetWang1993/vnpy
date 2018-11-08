@@ -1,0 +1,7 @@
+{
+	"apiKey": "9e30d5ce-964a-413f-8077-5ea17ee60260",
+	"secretKey": "946613C1EA7FDBB2BA2BFBE1DBB9B86A",
+    	"trace": false,
+        "symbols": ["btc_usd", "ltc_usd", "eth_usd", "etc_usd", "bch_usd", "xrp_usd", "eos_usd"]
+}
+
