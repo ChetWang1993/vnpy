@@ -6,5 +6,6 @@
     "okSymbol": "ETH-USD-181228",
     "k1": 0.6,
     "k2": 0.4,
-    "currency": "eth"
+    "currency": "eth",
+    "logFile": "order_eth.log"
 }

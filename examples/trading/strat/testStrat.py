@@ -1,6 +1,4 @@
 # encoding: UTF-8
-from datetime import datetime, date, time, timedelta
-import time
 from func import *
 from vnpy.trader.app.ctaStrategy.ctaTemplate import BarGenerator
 from vnpy.trader.vtObject import VtBarData, VtTickData
@@ -27,10 +25,11 @@ class testStrategy():
 
     apiKey = ""
     secretKey = ""
-
+    logFile = ""
     # 参数列表，保存了参数的名称
     paramList = ['apiKey',
                  'secretKey',
+                 'logFile',
                  'author',
                  'vtSymbol',
                  'okSymbol',
@@ -62,7 +61,7 @@ class testStrategy():
                     d[key] = setting[key]        
 
         print(u'策略初始化')
-        self.okApi = okApi(self.apiKey, self.secretKey)
+        self.okApi = okApi(self.apiKey, self.secretKey, self.logFile)
         # 载入历史数据，并采用回放计算的方式初始化策略数值
         self.initPrice()
         #self.putEvent()
@@ -115,7 +114,7 @@ class testStrategy():
 
     def updatePos(self):
         try:
-            balance = self.okApi.get_okex("/api/futures/v3/" + self.okSymbol + "/position");
+            balance = self.okApi.get_okex("/api/futures/v3/" + self.okSymbol + "/position")
             self.longPos =  float(balance['holding'][0]['long_avail_qty'])
             self.shortPos = float(balance['holding'][0]['short_avail_qty'])
         except IndexError:

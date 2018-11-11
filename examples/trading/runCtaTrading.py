@@ -8,7 +8,7 @@ import json
 settingFileName = sys.argv[1]
 setting = json.load(open('conf/' + settingFileName))
 strat = testStrategy(setting)
-okApi = okApi(setting['apiKey'], setting['secretKey'])
+okApi = okApi(setting['apiKey'], setting['secretKey'], setting['logFile'])
 while(True):
     tick = okApi.get_okex("/api/futures/v3/instruments/" + setting['okSymbol'] + "/ticker")
     t = VtTickData()   

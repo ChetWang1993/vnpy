@@ -30,6 +30,7 @@ class testStrategy():
     # 参数列表，保存了参数的名称
     paramList = ['apiKey',
                  'secretKey',
+                 'logFile',
                  'author',
                  'vtSymbol',
                  'okSymbol',
@@ -60,7 +61,7 @@ class testStrategy():
                 if key in setting:
                     d[key] = setting[key]
         print(u'策略初始化')
-        self.okApi = okApi(self.apiKey, self.secretKey)
+        self.okApi = okApi(self.apiKey, self.secretKey, self.logFile)
         # 载入历史数据，并采用回放计算的方式初始化策略数值
         self.initPrice()
         #self.putEvent()
