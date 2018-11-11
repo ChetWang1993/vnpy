@@ -88,10 +88,10 @@ class testStrategy():
             print("%s today kline"%(self.__dict__['okSymbol']))
             print(klinesT)
             self.dayOpen = float(klinesT[0][1])
-            self.dayClose = float(klinesT[0][2])
+            self.dayHigh = float(klinesT[0][2])
             self.dayLow = float(klinesT[0][3])
-            self.dayHigh = float(klinesT[0][4])
-            self.range = float(klinesY[0][4]) - float(klinesY[0][3])
+            self.dayClose = float(klinesT[0][4])
+            self.range = float(klinesY[0][2]) - float(klinesY[0][3])
             self.longEntry = float(klinesT[0][1]) + self.k1 * self.range
             self.shortEntry = float(klinesT[0][1]) - self.k2 * self.range
         except KeyError:
@@ -109,7 +109,7 @@ class testStrategy():
         self.updatePos()
         self.barList.append(bar)
         if len(self.barList) < 2:
-            return           
+            return
         lastBar = self.barList[-2]
         self.barList.pop(0)
 
@@ -127,7 +127,7 @@ class testStrategy():
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
 
-        print("%s %s h: %f, l: %f, o: %f, c: %f" % (str(datetime.now()), self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close))
+        print("%s %s h: %f, l: %f, o: %f, c: %f" % (str(bar.datetime), self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close))
         print("%s long entry: %f, short entry: %f, range: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.range))
 
         if self.longPos == 0.0 and self.shortPos == 0.0:
@@ -141,13 +141,13 @@ class testStrategy():
             # 多头止损单
             if bar.close <= self.shortEntry:
                 self.order(self.longEntry, int(self.longPos), SELL)
-                self.order(self.shortEntry, self.fixedSize, SHORT)            
+                self.order(self.shortEntry, self.fixedSize, SHORT)
         # 持有空头仓位
         elif self.shortPos > 0.0:
             # 空头止损单
             if bar.close >= self.longEntry:
                 self.order(self.longEntry, int(self.shortPos), COVER)
-                self.order(self.shortEntry, self.fixedSize, BUY)    
+                self.order(self.shortEntry, self.fixedSize, BUY)
       # 发出状态更新事件
         #self.putEvent()
 

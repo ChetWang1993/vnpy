@@ -6,7 +6,7 @@ from func import *
 import json
 
 settingFileName = sys.argv[1]
-setting = json.load(open(settingFileName))
+setting = json.load(open('conf/' + settingFileName))
 strat = testStrategy(setting)
 okApi = okApi(setting['apiKey'], setting['secretKey'])
 while(True):
@@ -16,6 +16,9 @@ while(True):
     t.lastPrice = tick['last']           # 最新成交价
     t.volume = 0                 # 今天总成交量
     t.openInterest = 0           # 持仓量
-    t.datetime = datetime.strptime(tick['timestamp'], '%Y-%m-%dT%H:%M:%S.%fZ')                    # python的datetime时间对象    
-    strat.onTick(t)
+    try:
+        t.datetime = datetime.strptime(tick['timestamp'], '%Y-%m-%dT%H:%M:%S.%fZ')                    # python的datetime时间对象    
+        strat.onTick(t)
+    except ValueError:
+        continue
     time.sleep(1)
