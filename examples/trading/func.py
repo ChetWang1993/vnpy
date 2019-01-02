@@ -22,9 +22,9 @@ class okApi():
                 paramStr += (key + '=' + params[key] + '&')
             paramStr = paramStr[:-1]
         timestamp = requests.get(base_url + '/api/general/v3/time').json()['iso']
+        
         header = get_header(self.apiKey, signature(self.secretKey, timestamp, 'GET', requestPath), timestamp, passphrase)
         res = requests.get(base_url + requestPath + paramStr, headers=header).json()
-        #print(res)
         return res
 
     def post_okex(self, requestPath, params = {}):
@@ -33,7 +33,8 @@ class okApi():
         body = json.dumps(params)
         header = get_header(self.apiKey, signature(self.secretKey, timestamp, 'POST', requestPath, body), timestamp, passphrase)
         res = requests.post(base_url + requestPath, headers=header, data=body).json()
-        log.write(str(timestamp) + '\tPOST' + requestPath + str(body) + '\n' + str(res) + '\n')
+        ts = datetime.strptime(timestamp.split('.')[0],'%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone('GMT')).astimezone(timezone('Asia/Singapore'))
+        log.write(str(ts) + '\tPOST' + requestPath + str(body) + '\n' + str(res) + '\n')
         log.close()
         return res
 

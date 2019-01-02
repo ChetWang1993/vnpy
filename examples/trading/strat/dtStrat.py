@@ -1,6 +1,7 @@
 # encoding: UTF-8
 from datetime import datetime, date, time, timedelta
 import time
+from pytz import timezone
 from func import *
 from vnpy.trader.app.ctaStrategy.ctaTemplate import BarGenerator
 from vnpy.trader.vtObject import VtBarData, VtTickData
@@ -60,7 +61,7 @@ class testStrategy():
             for key in self.paramList:
                 if key in setting:
                     d[key] = setting[key]
-        print(u'策略初始化')
+        print(u'strat init')
         self.okApi = okApi(self.apiKey, self.secretKey, self.logFile)
         # 载入历史数据，并采用回放计算的方式初始化策略数值
         self.initPrice()
@@ -114,7 +115,9 @@ class testStrategy():
         lastBar = self.barList[-2]
         self.barList.pop(0)
 
-        if lastBar.datetime.date() != bar.datetime.date():
+        last_bar_date = lastBar.datetime.replace(tzinfo=timezone('GMT')).astimezone(timezone('Asia/Singapore')).date()
+        current_bar_date = bar.datetime.replace(tzinfo=timezone('GMT')).astimezone(timezone('Asia/Singapore')).date()
+        if last_bar_date != current_bar_date:
             # 如果已经初始化
             if self.dayHigh:
                 self.range = self.dayHigh - self.dayLow
@@ -127,8 +130,9 @@ class testStrategy():
         else:
             self.dayHigh = max(self.dayHigh, bar.high)
             self.dayLow = min(self.dayLow, bar.low)
-
-        print("%s %s h: %f, l: %f, o: %f, c: %f" % (str(bar.datetime), self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close))
+        
+        ts = bar.datetime.replace(tzinfo=timezone('GMT')).astimezone(timezone('Asia/Singapore')
+        print("%s %s h: %f, l: %f, o: %f, c: %f" % (str(ts), self.__dict__['okSymbol'], bar.high, bar.low, bar.open, bar.close))
         print("%s long entry: %f, short entry: %f, range: %f" % (self.__dict__['okSymbol'], self.longEntry, self.shortEntry, self.range))
 
         if self.longPos == 0.0 and self.shortPos == 0.0:

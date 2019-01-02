@@ -12,8 +12,8 @@ def signature(secretKey, timestamp, method, request_path, body={}):
     if str(body) == '{}' or str(body) == 'None':
         body = ''
     message = str(timestamp) + str.upper(method) + request_path + str(body)
-    print(message)
-    #mac = hmac.new(bytes(secret_key, encoding='utf8'), bytes(message, encoding='utf-8'), digestmod='sha256')
+    if method == 'POST':
+        print(message)
     mac = hmac.new(secretKey, message, digestmod=hashlib.sha256)
     d = mac.digest()
     return base64.b64encode(d)
